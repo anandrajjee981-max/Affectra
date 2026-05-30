@@ -5,7 +5,7 @@
 > **“An AI-powered real-time emotion intelligence platform that transforms human expressions into interactive digital experiences.”**
 
 ---
-https://www.behance.net/gallery/249462449/Music-App-Landing-Page-Design?tracking_source=search_projects|music+website&l=56
+https://affectra-koea.onrender.com
 
 # 🌍 What is Affectra?
 
