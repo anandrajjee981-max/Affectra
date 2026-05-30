@@ -7,10 +7,21 @@ const cookieparser = require("cookie-parser")
 const cors = require('cors')
 app.use(cors({
     credentials : true ,
-    origin : " http://localhost:5173"
+     origin: [
+    "http://localhost:5173",
+    "https://affectra-koea.onrender.com"
+  ]
 }))
 app.use(cookieparser())
 app.use("/api/auth",authroute)
 app.use("/api/song",songroute)
+
+
+const path = require("path");
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
 
 module.exports = app
