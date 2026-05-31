@@ -132,7 +132,7 @@ const Hero = () => {
         </div>
         
       </div>
-      <Second />
+     
     </>
   );
 };

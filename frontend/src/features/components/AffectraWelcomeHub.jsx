@@ -27,9 +27,9 @@ const Navbar1 = ({ isCalibrated = false, currentExpression }) => {
   // Core navigation registry matrix
   const navModules = [
     { id: "biometrics", label: "BIOMETRIC_LINK", path: "/face", icon: "✦" },
-    { id: "analytics", label: "LIVE_ANALYTICS", path: "/analytics", icon: "📊" },
-    { id: "personal", label: "MOOD_ADAPT_UI", path: "/mood-ui", icon: "🎨" },
-    { id: "reactions", label: "AI_INTERACT", path: "/ai-interact", icon: "🧠" },
+    { id: "analytics", label: "LIVE_ANALYTICS", path: "/analysis", icon: "📊" },
+    // { id: "personal", label: "MOOD_ADAPT_UI", path: "/mood", icon: "🎨" },
+    // { id: "reactions", label: "AI_INTERACT", path: "/ai-interact", icon: "🧠" },
   ];
 
   const triggerSystemPurge = async () => {

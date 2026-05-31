@@ -13,6 +13,8 @@ import Protected from "./src/features/auth/Protected"
 import Show1 from "./src/features/Facedetection/Show1"
 import Show from "./src/features/pages/Show"
 import Card from "./src/features/Facedetection/Card"
+import Analysis from "./src/features/Facedetection/Analysis"
+import Moodadapt from "./src/features/Moodadapt"
 
 export const router = createBrowserRouter([
 {
@@ -53,6 +55,14 @@ export const router = createBrowserRouter([
 ,{
     path:"/card" ,
     element: <Card/>
+},
+{
+    path: "/analysis",
+    element : <Analysis/>
+},
+{
+    path:"/mood",
+    element : <Moodadapt/>
 }
 
 ])

@@ -9,6 +9,8 @@ import { startDetection, stopDetection, detectFaceLoop } from "../utils/utils";
 import Navbar1 from "../components/AffectraWelcomeHub";
 import Music from "./Card";
 import Notification from "../components/Notification";
+import { useemotion } from "./hooks/useemotion";
+
 
 export default function Facedetection() {
   const navigate = useNavigate(); // <-- Fix 2: Initialize hook inside component
@@ -28,7 +30,7 @@ export default function Facedetection() {
   
   // Controls dynamic routing authorization inside global Navbar component
   const [isCalibrated, setIsCalibrated] = useState(false);
-
+const {handleemotion} = useemotion()
   // High-fidelity futuristic neon color-state maps with explicit spotlight tracking
   const [theme, setTheme] = useState({
     accent: "#f97316",
@@ -83,6 +85,13 @@ export default function Facedetection() {
       if (faceLandmarkerRef.current) faceLandmarkerRef.current.close();
     };
   }, []);
+
+useEffect(() => {
+  if (isDetecting && expression) {
+    handleemotion(expression);
+  }
+  
+}, [expression, isDetecting]);
 
   // Live recognition canvas rendering cycle
   useEffect(() => {
@@ -333,17 +342,21 @@ export default function Facedetection() {
             </div>
 
             {/* Cybernetic Structural Button Core */}
-            <button
-              onClick={handleToggleDetection}
-              disabled={loading}
-              className={`w-full py-3 px-4 rounded-xl font-black tracking-[0.15em] text-[10px] transition-all duration-300 uppercase border active:scale-[0.98] disabled:opacity-20 ${
-                isDetecting
-                  ? "bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-600 hover:text-white hover:shadow-[0_0_25px_rgba(239,68,68,0.3)] shadow-[inset_0_0_10px_rgba(239,68,68,0.05)]"
-                  : theme.button
-              }`}
-            >
-              {isDetecting ? ":: TERMINATE_SCANNER ::" : ":: INITIATE_FEED_SCAN ::"}
-            </button>
+     
+<button
+  onClick={() => {
+    handleToggleDetection();
+   
+  }}
+  disabled={loading}
+  className={`w-full py-3 px-4 rounded-xl font-black tracking-[0.15em] text-[10px] transition-all duration-300 uppercase border active:scale-[0.98] disabled:opacity-20 ${
+    isDetecting
+      ? "bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-600 hover:text-white hover:shadow-[0_0_25px_rgba(239,68,68,0.3)] shadow-[inset_0_0_10px_rgba(239,68,68,0.05)]"
+      : theme.button
+  }`}
+>
+  {isDetecting ? ":: TERMINATE_SCANNER ::" : ":: INITIATE_FEED_SCAN ::"}
+</button>
 
           </div>
         </div>

@@ -7,8 +7,9 @@ const Show = () => {
   return (
     <div>
       <Navbar/>
-      <Hero/>
-      <Second/>
+      <div id="hero">  <Hero/></div>
+    <div id="feature">  <Second/></div>
+    
     </div>
   )
 }
