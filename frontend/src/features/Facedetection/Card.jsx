@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar1 from '../components/AffectraWelcomeHub';
 import { BIG_MEME } from '../utils/meme';
@@ -8,6 +8,12 @@ export default function Card({ isCalibrated = true, currentExpression }) {
   const location = useLocation();
   const { song, loading, handleGetSong, error } = useSong();
   const [activeTab, setActiveTab] = useState("MUSIC");
+  
+  // Track the ID of the audio track that is currently playing
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+  
+  // Store references to all active audio elements dynamically
+  const audioRefs = useRef({});
 
   // Biometric core matrix indexing 
   const rawExpression = location.state?.currentExpression || currentExpression || "SYSTEM_READY";
@@ -44,6 +50,13 @@ export default function Card({ isCalibrated = true, currentExpression }) {
     return () => { active = false; };
   }, [matchedThemeKey, activeTab]); 
 
+  // Reset audio tracker if the active tab changes away from audio feed
+  useEffect(() => {
+    if (activeTab !== "MUSIC") {
+      setCurrentlyPlaying(null);
+    }
+  }, [activeTab]);
+
   const parseTracks = () => {
     if (!song) return [];
     if (Array.isArray(song)) return song;
@@ -53,6 +66,17 @@ export default function Card({ isCalibrated = true, currentExpression }) {
   };
 
   const synchronizedTracks = parseTracks();
+
+  // Core handler: stops other playing audios when a new one triggers
+  const handleAudioPlay = (trackId) => {
+    if (currentlyPlaying && currentlyPlaying !== trackId) {
+      const activeAudio = audioRefs.current[currentlyPlaying];
+      if (activeAudio) {
+        activeAudio.pause();
+      }
+    }
+    setCurrentlyPlaying(trackId);
+  };
 
   return (
     <div className="relative min-h-screen bg-[#020204] text-zinc-100 font-mono overflow-x-hidden flex flex-col md:flex-row pb-20 md:pb-0 select-none">
@@ -147,74 +171,61 @@ export default function Card({ isCalibrated = true, currentExpression }) {
                     </div>
 
                     {/* Spotify Styled Cyber Row Loops */}
-                    {synchronizedTracks.map((track, id) => (
-                      <div 
-                        key={track._id || id} 
-                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 border-b border-zinc-900/40 hover:bg-zinc-900/30 transition-all duration-150 gap-4 group relative"
-                        style={{ '--hover-accent': currentTheme.accent }}
-                      >
-                        {/* Interactive dynamic hover border light marker */}
-                        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-transparent group-hover:bg-current transition-colors" style={{ color: currentTheme.accent }} />
+                    {synchronizedTracks.map((track, id) => {
+                      const trackId = track._id || `track-${id}`;
+                      return (
+                        <div 
+                          key={trackId} 
+                          className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 border-b border-zinc-900/40 hover:bg-zinc-900/30 transition-all duration-150 gap-4 group relative"
+                          style={{ '--hover-accent': currentTheme.accent }}
+                        >
+                          {/* Interactive dynamic hover border light marker */}
+                          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-transparent group-hover:bg-current transition-colors" style={{ color: currentTheme.accent }} />
 
-                        <div className="flex items-center flex-1 gap-4 min-w-0">
-                          {/* Index Index */}
-                          <div className="hidden sm:flex items-center justify-center w-8 text-xs font-bold text-zinc-600 group-hover:text-zinc-200">
-                            {(id + 1).toString().padStart(2, '0')}
-                          </div>
+                          <div className="flex items-center flex-1 gap-4 min-w-0">
+                            {/* Index Index */}
+                            <div className="hidden sm:flex items-center justify-center w-8 text-xs font-bold text-zinc-600 group-hover:text-zinc-200">
+                              {(id + 1).toString().padStart(2, '0')}
+                            </div>
 
-                          {/* Icon Grid node cover */}
-                          <div 
-                            className="flex items-center justify-center w-10 h-10 bg-black border rounded-none transition-all duration-300 shrink-0 shadow-lg"
-                            style={{ borderColor: `${currentTheme.accent}30` }}
-                          >
-                            <span className="text-xs filter saturate-200 group-hover:scale-110 transition-transform">⚡</span>
-                          </div>
-
-                          {/* Song Identifiers */}
-                          <div className="flex flex-col min-w-0">
-                            <h4 className="text-xs font-black text-zinc-300 tracking-wider truncate group-hover:text-white" title={track.song}>
-                              {track.song ? track.song.replace(/WhatsApp Audio \d{4}-\d{2}-\d{2} at /, 'STREAM_NODE_') : "DYNAMIC_NODE_SEGMENT"}
-                            </h4>
-                            <span className="text-[9px] font-bold text-zinc-600 mt-1 uppercase tracking-widest flex items-center gap-2">
-                              <span>SOURCE: CDN_FEED</span>
-                              <span className="w-1 h-1 bg-zinc-800" />
-                              <span style={{ color: currentTheme.accent }} className="font-black tracking-normal opacity-80">{track.emotion || matchedThemeKey}</span>
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Player Engine with Download Disabled */}
-                        {track.songUrl && (
-                          <div className="w-full sm:w-64 shrink-0 bg-black border border-zinc-900 p-1 flex items-center shadow-inner group-hover:border-zinc-800">
-                            <audio 
-                              src={track.songUrl} 
-                              controls 
-                              controlsList="nodownload"
-                              preload="none"
-                              className="w-full h-6 filter invert brightness-90 tracking-tighter"
-                            />
-                          </div>
-                        )}
-
-                        {/* Direct Gateway */}
-                        {track.songUrl && (
-                          <div className="flex justify-end items-center sm:w-24 shrink-0">
-                            <a 
-                              href={track.songUrl} 
-                              target="_blank" 
-                              rel="noreferrer"
-                              className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 border transition-all duration-200 text-zinc-400 hover:text-white"
-                              style={{ borderColor: '#27272a' }}
-                              onMouseEnter={(e) => { e.target.style.borderColor = currentTheme.accent; e.target.style.boxShadow = `0 0 10px ${currentTheme.accent}40`; }}
-                              onMouseLeave={(e) => { e.target.style.borderColor = '#27272a'; e.target.style.boxShadow = 'none'; }}
+                            {/* Icon Grid node cover */}
+                            <div 
+                              className="flex items-center justify-center w-10 h-10 bg-black border rounded-none transition-all duration-300 shrink-0 shadow-lg"
+                              style={{ borderColor: `${currentTheme.accent}30` }}
                             >
-                              LAUNCH //
-                            </a>
-                          </div>
-                        )}
+                              <span className="text-xs filter saturate-200 group-hover:scale-110 transition-transform">⚡</span>
+                            </div>
 
-                      </div>
-                    ))}
+                            {/* Song Identifiers */}
+                            <div className="flex flex-col min-w-0">
+                              <h4 className="text-xs font-black text-zinc-300 tracking-wider truncate group-hover:text-white" title={track.song}>
+                                {track.song ? track.song.replace(/WhatsApp Audio \d{4}-\d{2}-\d{2} at /, 'STREAM_NODE_') : "DYNAMIC_NODE_SEGMENT"}
+                              </h4>
+                              <span className="text-[9px] font-bold text-zinc-600 mt-1 uppercase tracking-widest flex items-center gap-2">
+                                <span>SOURCE: CDN_FEED</span>
+                                <span className="w-1 h-1 bg-zinc-800" />
+                                <span style={{ color: currentTheme.accent }} className="font-black tracking-normal opacity-80">{track.emotion || matchedThemeKey}</span>
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Player Engine with Download Disabled */}
+                          {track.songUrl && (
+                            <div className="w-full sm:w-64 shrink-0 bg-black border border-zinc-900 p-1 flex items-center shadow-inner group-hover:border-zinc-800">
+                              <audio 
+                                ref={(el) => { audioRefs.current[trackId] = el; }}
+                                src={track.songUrl} 
+                                controls 
+                                controlsList="nodownload"
+                                preload="none"
+                                onPlay={() => handleAudioPlay(trackId)}
+                                className="w-full h-6 filter invert brightness-90 tracking-tighter"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-24 text-zinc-700 text-xs tracking-widest">
